@@ -7,13 +7,18 @@
 # differences in the current branch from master in a single
 # change.
 
-# TODO: make the base branch optional
 # TODO: restore the state if something goes wrong
 
+#PULL_BRANCH=$1
+#if [ -e "PULL_BRANCH" ]
+#then 
+    PULL_BRANCH=master
+#fi
+
 CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
-if [ "${CURRENT_BRANCH}" == "master" ]
+if [ "${CURRENT_BRANCH}" == "${PULL_BRANCH}" ]
 then
-  echo "You are already on master"
+  echo "You are already on ${PULL_BRANCH}"
   exit 1
 fi
 
@@ -30,8 +35,8 @@ then
   exit 1
 fi
 
-echo Checking out master ...
-execute "git checkout master" || exit 1
+echo Checking out ${PULL_BRANCH} ...
+execute "git checkout " || exit 1
 execute "git pull" || exit 1
 
 echo Creating temporary branch ...
@@ -40,8 +45,8 @@ execute "git checkout -b ${TEMP_BRANCH}" || exit 1
 echo Merging the changes from ${CURRENT_BRANCH} ...
 execute "git merge --no-edit ${CURRENT_BRANCH}" || exit 1
 
-echo Reset back to the master head ...
-execute "git reset master" || exit 1
+echo Reset back to the ${PULL_BRANCH} head ...
+execute "git reset ${PULL_BRANCH}" || exit 1
 
 MESSAGE=$1
 if [[ -z "$MESSAGE" ]]
@@ -50,7 +55,7 @@ then
 fi
 
 echo Commiting the changes with message "${MESSAGE}" ...
-execute "git add ." || exit 1
+execute "git add `git rev-parse --show-toplevel`" || exit 1
 execute "git commit -m \"${MESSAGE}\"" || exit 1
 
 echo Deleting ${CURRENT_BRANCH} ...
