@@ -36,7 +36,7 @@ then
 fi
 
 echo Checking out ${PULL_BRANCH} ...
-execute "git checkout " || exit 1
+execute "git checkout ${PULL_BRANCH}" || exit 1
 execute "git pull" || exit 1
 
 echo Creating temporary branch ...
