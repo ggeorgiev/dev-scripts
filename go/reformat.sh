@@ -1,3 +1,4 @@
 #!/bin/sh
-find . -name "*.go" | xargs gofmt -w -s
+
+go get golang.org/x/tools/cmd/goimports
 find . -name "*.go" | xargs goimports -w
