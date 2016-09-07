@@ -2,13 +2,12 @@
 
 pattern=
 exclude="^$"
-
 substitutes="s/[(]//"
 
 while [ $# -gt 0 ]
 do
   case "$1" in
-    -p) pattern="$2"; shift;;
+    -p) echo $2; pattern="$2"; shift;;
     -s) substitutes="$substitutes;s/$2/"; shift;;
     -*)
        echo >&2 \
@@ -21,7 +20,7 @@ done
 
 case "$pattern" in
                   "go") pattern="[.]go$"
-                        exclude="\([.]pb[.]go\|[.]pb[.]gw[.]go\)$"
+                        exclude="\([.]pb[.]go\|[.]pb[.]gw[.]go\|[.]bin[.]go\)$"
                         ;;
   "go-test"|"go-tests") pattern="_test[.]go$" 
                         ;;
@@ -29,6 +28,7 @@ case "$pattern" in
                         exclude="_test[.]go$"
                         ;;
                     "") pattern=".*"
+                        echo case $pattern
                         ;;
                      *) ;;
 esac
