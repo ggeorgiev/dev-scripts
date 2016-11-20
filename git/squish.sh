@@ -48,6 +48,12 @@ execute "git merge --no-edit ${CURRENT_BRANCH}" || exit 1
 echo Reset back to the ${PULL_BRANCH} head ...
 execute "git reset ${PULL_BRANCH}" || exit 1
 
+if [ ! -z $POST_PROCESS_SQUISH ]
+then
+    echo post precess the merge
+    eval $POST_PROCESS_SQUISH
+fi
+
 MESSAGE=$1
 if [[ -z "$MESSAGE" ]]
 then
@@ -66,3 +72,4 @@ execute "git checkout -b ${CURRENT_BRANCH}" || exit 1
 
 echo Deleting the temporary branch ...
 execute "git branch -D ${TEMP_BRANCH}" || exit 1
+
