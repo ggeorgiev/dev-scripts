@@ -9,11 +9,20 @@
 
 # TODO: restore the state if something goes wrong
 
-#PULL_BRANCH=$1
-#if [ -e "PULL_BRANCH" ]
-#then 
-    PULL_BRANCH=master
-#fi
+
+if [ -z "$PULL_BRANCH" ]
+then
+  PULL_BRANCH=`git show-branch | grep '*' | grep -v "$(git rev-parse --abbrev-ref HEAD)" | head -n1 | sed 's/.*\[\(.*\)\].*/\1/' | sed 's/[\^~].*//'`
+  while true; do
+    read -p "y) $PULL_BRANCH m) master n) to cancel: " yn
+    case $yn in
+      [Yy]* ) break;;
+      [Mm]* ) PULL_BRANCH=master; break;;
+      [Nn]* ) exit;;
+      * ) echo "Please answer yes or no.";;
+    esac
+  done
+fi 
 
 CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 if [ "${CURRENT_BRANCH}" == "${PULL_BRANCH}" ]
