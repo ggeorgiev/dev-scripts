@@ -9,22 +9,33 @@
 
 # TODO: restore the state if something goes wrong
 
+CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
+
+
+if [ -z "$SQUISH_PULL_BRANCHES_PATTERN" ]
+then
+  SQUISH_PULL_BRANCHES_PATTERN="^master$|^feature/|^release/"
+fi
 
 if [ -z "$PULL_BRANCH" ]
 then
-  PULL_BRANCH=`git show-branch | grep '*' | grep -v "$(git rev-parse --abbrev-ref HEAD)" | head -n1 | sed 's/.*\[\(.*\)\].*/\1/' | sed 's/[\^~].*//'`
-  while true; do
-    read -p "y) $PULL_BRANCH m) master n) to cancel: " yn
-    case $yn in
-      [Yy]* ) break;;
-      [Mm]* ) PULL_BRANCH=master; break;;
-      [Nn]* ) exit;;
-      * ) echo "Please answer yes or no.";;
-    esac
-  done
+  PULL_BRANCHS=( `git branch | cut -c 3- | grep -vFx "$CURRENT_BRANCH" | grep -E $SQUISH_PULL_BRANCHES_PATTERN` )
+
+  if [ ${#PULL_BRANCHS[@]} == 0 ]
+  then
+    echo "There is no branch that matches the pattern: $SQUISH_PULL_BRANCHES_PATTERN"
+    exit 1
+  fi
+
+  if [ ${#PULL_BRANCHS[@]} == 1 ]
+  then
+    PULL_BRANCH=${PULL_BRANCHS[0]}
+  else
+    echo There multiple branches that match the pattern. Selection is not implemented yet.
+    exit 1
+  fi
 fi 
 
-CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 if [ "${CURRENT_BRANCH}" == "${PULL_BRANCH}" ]
 then
   echo "You are already on ${PULL_BRANCH}"
@@ -44,6 +55,17 @@ then
   exit 1
 fi
 
+MESSAGE=$1
+if [[ -z "$MESSAGE" ]]
+then
+  MESSAGE=`git log -1 --cherry-pick --oneline --no-merges --right-only --pretty=%B ${PULL_BRANCH}...${CURRENT_BRANCH}`
+
+  if [ -z "$MESSAGE" ]
+  then
+    MESSAGE="All changes from ${CURRENT_BRANCH} squished"
+  fi
+fi
+
 echo Checking out ${PULL_BRANCH} ...
 execute "git checkout ${PULL_BRANCH}" || exit 1
 execute "git pull" || exit 1
@@ -61,12 +83,6 @@ if [ ! -z $POST_PROCESS_SQUISH ]
 then
     echo post precess the merge
     eval $POST_PROCESS_SQUISH
-fi
-
-MESSAGE=$1
-if [[ -z "$MESSAGE" ]]
-then
-  MESSAGE="All changes from ${CURRENT_BRANCH} squished"
 fi
 
 echo Commiting the changes with message "${MESSAGE}" ...
