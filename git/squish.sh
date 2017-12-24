@@ -81,12 +81,28 @@ execute "git reset ${PULL_BRANCH}" || exit 1
 
 if [ ! -z $POST_PROCESS_SQUISH ]
 then
-    echo post precess the merge
+    echo post process the merge
     eval $POST_PROCESS_SQUISH
+fi
+
+if git diff --exit-code > /dev/null
+then
+    echo "All changes already in ${PULL_BRANCH}"
+
+    execute "git checkout ${PULL_BRANCH}" || exit 1
+
+    echo Deleting the current branch ...
+    execute "git branch -D ${CURRENT_BRANCH}" || exit 1
+
+    echo Deleting the temporary branch ...
+    execute "git branch -D ${TEMP_BRANCH}" || exit 1
+
+    exit 0
 fi
 
 echo Commiting the changes with message "${MESSAGE}" ...
 execute "git add `git rev-parse --show-toplevel`" || exit 1
+
 execute "git commit -m \"${MESSAGE}\"" || exit 1
 
 echo Deleting ${CURRENT_BRANCH} ...
