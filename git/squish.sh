@@ -17,6 +17,12 @@ then
   SQUISH_PULL_BRANCHES_PATTERN="^master$|^feature/|^release/"
 fi
 
+# If there is no pull branch explicitly specified, try to obtain it from the branch name
+if [ -z "$PULL_BRANCH" ]
+then
+    PULL_BRANCH=`echo $CURRENT_BRANCH | sed -e "s/^[^@]*//" | grep @ | cut -c 2-`
+fi
+
 if [ -z "$PULL_BRANCH" ]
 then
   PULL_BRANCHS=( `git branch | cut -c 3- | grep -vFx "$CURRENT_BRANCH" | grep -E $SQUISH_PULL_BRANCHES_PATTERN` )
