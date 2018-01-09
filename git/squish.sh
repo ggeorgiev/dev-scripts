@@ -25,7 +25,7 @@ fi
 
 if [ -z "$PULL_BRANCH" ]
 then
-  PULL_BRANCHS=( `git branch | cut -c 3- | grep -vFx "$CURRENT_BRANCH" | grep -E $SQUISH_PULL_BRANCHES_PATTERN` )
+  PULL_BRANCHS=( `git branch | cut -c 3- | grep -E $SQUISH_PULL_BRANCHES_PATTERN` )
 
   if [ ${#PULL_BRANCHS[@]} == 0 ]
   then
@@ -37,8 +37,8 @@ then
   then
     PULL_BRANCH=${PULL_BRANCHS[0]}
   else
-    echo There multiple branches that match the pattern. Selection is not implemented yet.
-    exit 1
+    echo '*** There are multiple branches that match the pattern. Defaulting to master.'
+    PULL_BRANCH=master
   fi
 fi 
 
@@ -64,7 +64,7 @@ fi
 MESSAGE=$1
 if [[ -z "$MESSAGE" ]]
 then
-  MESSAGE=`git log -1 --cherry-pick --oneline --no-merges --right-only --pretty=%B ${PULL_BRANCH}...${CURRENT_BRANCH}`
+  MESSAGE=`git log -1 --grep '.' --cherry-pick --oneline --no-merges --right-only --pretty=%B ${PULL_BRANCH}...${CURRENT_BRANCH}`
 
   if [ -z "$MESSAGE" ]
   then

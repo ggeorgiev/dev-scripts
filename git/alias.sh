@@ -22,6 +22,7 @@ new_branch()
     git checkout -b ${NEW_BRANCH}${TARGET_BRANCH}
 }
 
+alias gtr='git commit --allow-empty --allow-empty-message -m "" && git push'
 alias gcam='git commit -am'
 alias gsh='git show'
 alias gbr='git branch'

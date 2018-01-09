@@ -37,5 +37,4 @@ esac
 
 git ls-files | grep -e "$pattern" | grep -ve "$exclude" \
   | xargs -L 1 git annotate --minimal -M -C -w -e -s | awk ' { print $2 } ' | sed "$substitutes" \
-  > /dev/null
-#  | sort | uniq -c | sort -n
+  | sort | uniq -c | sort -n
