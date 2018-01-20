@@ -19,18 +19,24 @@ do
 done
 
 case "$pattern" in
-                  "go") pattern="[.]go$"
-                        exclude="\([.]pb[.]go\|[.]pb[.]gw[.]go\|[.]bin[.]go\|[.]avro[.]go\)$"
-                        ;;
-  "go-test"|"go-tests") pattern="_test[.]go$" 
-                        ;;
-          "go-product") pattern="[.]go$"
-                        exclude="_test[.]go$"
-                        ;;
-                    "") pattern=".*"
-                        echo case $pattern
-                        ;;
-                     *) ;;
+                      "go") pattern="[.]go$"
+                            exclude="\([.]pb[.]go\|[.]pb[.]gw[.]go\|[.]bin[.]go\|[.]avro[.]go\)$"
+                            ;;
+      "go-test"|"go-tests") pattern="_test[.]go$"
+                            ;;
+              "go-product") pattern="[.]go$"
+                            exclude="_test[.]go$"
+                            ;;
+                    "java") pattern="[.]java$"
+                            ;;
+  "java-test"|"java-tests") pattern='/test/java/.*[.]java$'
+                            ;;
+            "java-product") pattern='/main/java/.*[.]java$'
+                            ;;
+                        "") pattern=".*"
+                            echo case $pattern
+                            ;;
+                         *) ;;
 esac
 
 #echo run fame with pattern: $pattern and exclude: $exclude
