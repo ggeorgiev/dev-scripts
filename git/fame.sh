@@ -2,17 +2,20 @@
 
 pattern=
 order="sort -n"
-exclude="^$"
+filter="^$"
 substitutes="s/[(]//"
+exclude="\$nothing"
 
 while [ $# -gt 0 ]
 do
   case "$1" in
     -p) pattern="$2"; shift;;
     -s) substitutes="$substitutes;s/$2/"; shift;;
+    -e) exclude="$exclude\|$2"; shift;;
     -a) order="sort -k 2";;
     -*)
        echo >&2 \
+         "unknown argument: $1" \
          "usage: $0 [-p pattern]"
        exit 1;;
      *) break;; # terminate while loop
@@ -22,12 +25,12 @@ done
 
 case "$pattern" in
                       "go") pattern="[.]go$"
-                            exclude="\([.]pb[.]go\|[.]pb[.]gw[.]go\|[.]bin[.]go\|[.]avro[.]go\)$"
+                            filter="\([.]pb[.]go\|[.]pb[.]gw[.]go\|[.]bin[.]go\|[.]avro[.]go\)$"
                             ;;
       "go-test"|"go-tests") pattern="_test[.]go$"
                             ;;
               "go-product") pattern="[.]go$"
-                            exclude="_test[.]go$"
+                            filter="_test[.]go$"
                             ;;
                     "java") pattern="[.]java$"
                             ;;
@@ -41,10 +44,10 @@ case "$pattern" in
                          *) ;;
 esac
 
-echo include: "$pattern" and exclude: "$exclude" order: $order
+echo include: "$pattern" and filter: "filter" order: $order exclude: "$exclude"
 
 {
-    (git log --format='<%aE>' | sort -u);
-    (git ls-files | grep -e "$pattern" | grep -ve "$exclude" \
-        | xargs -L 1 git annotate --minimal -M -C -w -e -s | awk ' { print $2 } ' | sed "$substitutes")
+    (git log --format='<%aE>' | grep -v "$exclude" | sort -u);
+    (git ls-files | grep -e "$pattern" | grep -ve "filter" \
+        | xargs -L 1 git annotate --minimal -M -C -w -e -s | awk ' { print $2 } ' | grep -v "$exclude" | sed "$substitutes")
 } | sort | uniq -c | $order | awk ' { print $1-1" "$2 } '
