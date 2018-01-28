@@ -91,6 +91,8 @@ then
     eval $POST_PROCESS_SQUISH
 fi
 
+execute "git add --intent-to-add `git rev-parse --show-toplevel`" || exit 1
+
 if git diff --exit-code > /dev/null
 then
     echo "All changes already in ${PULL_BRANCH}"
@@ -106,10 +108,22 @@ then
     exit 0
 fi
 
-echo Commiting the changes with message "${MESSAGE}" ...
 execute "git add `git rev-parse --show-toplevel`" || exit 1
 
-execute "git commit -m \"${MESSAGE}\"" || exit 1
+echo Check for conflicts ...
+FILES=`git diff-index --cached --name-only HEAD`
+
+for file in $FILES
+do
+    if grep -nr "^<\{7\} \|^=\{7\}\|^>\{7\} " $file
+    then
+        echo unstage $file
+        execute "git reset HEAD $file"
+    fi
+done
+
+echo Committing the changes with message "${MESSAGE}" ...
+execute "git commit --allow-empty --no-verify -m \"${MESSAGE}\"" || exit 1
 
 echo Deleting ${CURRENT_BRANCH} ...
 execute "git branch -D ${CURRENT_BRANCH}" || exit 1
