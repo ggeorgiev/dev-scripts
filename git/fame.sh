@@ -5,6 +5,7 @@ order="sort -n"
 filter="^$"
 substitutes="s/[(]//"
 exclude="\$nothing"
+average=false
 
 while [ $# -gt 0 ]
 do
@@ -13,6 +14,7 @@ do
     -s) substitutes="$substitutes;s/$2/"; shift;;
     -e) exclude="$exclude\|$2"; shift;;
     -a) order="sort -k 2";;
+    -g) average="true";;
     -*)
        echo >&2 \
          "unknown argument: $1" \
@@ -46,8 +48,15 @@ esac
 
 echo include: "$pattern" and filter: "filter" order: $order exclude: "$exclude"
 
-{
+STATS=`{
     (git log --format='<%aE>' | grep -v "$exclude" | sort -u);
     (git ls-files | grep -e "$pattern" | grep -ve "filter" \
         | xargs -L 1 git annotate --minimal -M -C -w -e -s | awk ' { print $2 } ' | grep -v "$exclude" | sed "$substitutes")
-} | sort | uniq -c | $order | awk ' { print $1-1" "$2 } '
+} | sort | uniq -c | $order | awk ' { print $1-1" "$2 } '`
+
+echo "$STATS"
+
+if [ "$average" == "true" ]
+then
+    echo "$STATS" | awk '{ total += $1 } END { print total/NR" <average@"NR">" }'
+fi
