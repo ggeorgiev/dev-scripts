@@ -113,12 +113,16 @@ execute "git add `git rev-parse --show-toplevel`" || exit 1
 echo Check for conflicts ...
 FILES=`git diff-index --cached --name-only HEAD`
 
+IFS=$'\n'
 for file in $FILES
 do
-    if grep -nr "^<\{7\} \|^=\{7\}\|^>\{7\} " $file
+    if [ -e "${file}" ]
     then
-        echo unstage $file
-        execute "git reset HEAD $file"
+        if grep -nr "^<\{7\} \|^=\{7\}\|^>\{7\} " "${file}"
+        then
+            echo unstage $file
+            execute "git reset HEAD $file"
+        fi
     fi
 done
 
