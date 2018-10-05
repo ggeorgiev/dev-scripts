@@ -11,7 +11,7 @@ target_branch()
         return
     fi
 
-    TARGET_BRANCH=`git rev-parse --abbrev-ref HEAD | grep "^feature/"`
+    TARGET_BRANCH=`git rev-parse --abbrev-ref HEAD | grep "^feature/\|^release/"`
     if [ ! -z "$TARGET_BRANCH" ]
     then
         echo "${TARGET_BRANCH}"
