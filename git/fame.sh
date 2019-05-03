@@ -7,6 +7,7 @@ substitutes="s/[(]//"
 exclude="\$nothing"
 average=false
 range=
+limit=1
 
 while [ $# -gt 0 ]
 do
@@ -17,6 +18,7 @@ do
     -a) order="sort -k 2";;
     -g) average="true";;
     -r) range="--since=$2"; shift;;
+    -l) limit=$2; shift;;
     -*)
        echo >&2 \
          "unknown argument: $1" \
@@ -58,7 +60,7 @@ STATS=`{
         | awk ' { print $2 } ' \
         | grep -v "$exclude" \
         | sed "$substitutes")
-} | sort | uniq -c | $order | awk ' { print $1-1" "$2 } '`
+} | sort | uniq -c | $order | awk ' { print $1-1" "$2 } ' | awk '($1 > '"$limit"')'`
 
 echo "$STATS"
 
