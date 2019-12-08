@@ -1,6 +1,7 @@
 #!/bin/bash
 
 pattern=
+include=
 order="sort -n"
 filter="^$"
 substitutes="s/[(]//"
@@ -14,6 +15,7 @@ do
   case "$1" in
     -p) pattern="$2"; shift;;
     -s) substitutes="$substitutes;s/$2/"; shift;;
+    -i) include="$include\|$2"; shift;;
     -e) exclude="$exclude\|$2"; shift;;
     -a) order="sort -k 2";;
     -g) average="true";;
@@ -50,7 +52,14 @@ case "$pattern" in
                          *) ;;
 esac
 
-echo include: "$pattern" and filter: "filter" order: $order exclude: "$exclude" range: "$range"
+if [ -z "$include" ]
+then
+  include='.*'
+else
+  include=`echo $include | cut -c 3-`
+fi
+
+echo pattern: "$pattern" and filter: "filter" order: $order include: "$include" exclude: "$exclude" range: "$range"
 
 STATS=`{
     (git log --format='<%aE>' | grep -v "$exclude" | sort -u);
@@ -59,6 +68,7 @@ STATS=`{
         | grep -v "^           " \
         | awk ' { print $2 } ' \
         | grep -v "$exclude" \
+        | grep "$include" \
         | sed "$substitutes")
 } | sort | uniq -c | $order | awk ' { print $1-1" "$2 } ' | awk '($1 > '"$limit"')'`
 

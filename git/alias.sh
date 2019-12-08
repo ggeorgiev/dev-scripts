@@ -40,6 +40,11 @@ new_branch()
     git checkout -b ${NEW_BRANCH}${TARGET_BRANCH}
 }
 
+ggb()
+{
+  git grep -n "$1" | while IFS=: read i j k; do git blame --porcelain -f -L $j,$j $i; done | grep "author " | sort | uniq -c | sort -k 1
+}
+
 alias gtr='git commit --allow-empty --allow-empty-message -m "" && git push'
 alias gcam='git commit -am'
 alias gsh='git show'
