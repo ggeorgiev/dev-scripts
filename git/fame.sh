@@ -8,7 +8,7 @@ substitutes="s/[(]//"
 exclude="\$nothing"
 average=false
 range=
-limit=1
+limit=0
 
 while [ $# -gt 0 ]
 do
@@ -62,7 +62,7 @@ fi
 echo pattern: "$pattern" and filter: "filter" order: $order include: "$include" exclude: "$exclude" range: "$range"
 
 STATS=`{
-    (git log --format='<%aE>' | grep -v "$exclude" | sort -u);
+    (git log --format='<%aE>' | grep -v "$exclude" | grep "$include" | sort -u);
     (git ls-files | grep -e "$pattern" | grep -ve "filter" \
         | xargs -L 1 git annotate --minimal -M -C -w -e -s -b ${range} \
         | grep -v "^           " \
@@ -70,7 +70,7 @@ STATS=`{
         | grep -v "$exclude" \
         | grep "$include" \
         | sed "$substitutes")
-} | sort | uniq -c | $order | awk ' { print $1-1" "$2 } ' | awk '($1 > '"$limit"')'`
+} | sort | uniq -c | $order | awk ' { print $1-1" "$2 } ' | awk '($1 >= '"$limit"')'`
 
 echo "$STATS"
 
