@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
 pushd `dirname ${BASH_ARGV[0]}`/../.. > /dev/null && BASEDIR=$(pwd -L) && popd > /dev/null
 
 target_branch()

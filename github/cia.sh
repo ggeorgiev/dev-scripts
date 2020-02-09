@@ -22,12 +22,12 @@ function status
   LINKS=
   if [ "$STATUS" == "failure" ]; then
     STATUS=[31m✖failure
-    LINKS=`hub ci-status -v $1 | grep "✖" | awk '{ print $3 }' | tr '\n' ' '`
+    LINKS=`hub ci-status -v -f "%S %U✔" $1 | tr "✔" "\n" | grep "failure" | awk '{ print $2 }' | tr '\n' ' '`
   fi
 
   if [ "$STATUS" == "pending" ]; then
     STATUS=[33m●pending
-    LINKS=`hub ci-status -v $1 | grep "●" | awk '{ print $3 }' | tr '\n' ' '`
+    LINKS=`hub ci-status -v -f "%S %U✔" $1 | tr "✔" "\n" | grep "pending" | awk '{ print $2 }' | tr '\n' ' '`
   fi
 
   if [ "$STATUS" == "success" ]; then
