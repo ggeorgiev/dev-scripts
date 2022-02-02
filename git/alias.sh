@@ -19,7 +19,7 @@ target_branch()
         return
     fi
 
-    echo "master"
+    git symbolic-ref refs/remotes/origin/HEAD | sed "s@^refs/remotes/origin/@@"
 }
 
 new_branch()
@@ -31,7 +31,7 @@ new_branch()
     if [[ ${NEW_BRANCH} != *"@"* ]]
     then
         TARGET_BRANCH=`target_branch`
-        if [ "${TARGET_BRANCH}" == "master" ]
+        if [ "${TARGET_BRANCH}" == $(git symbolic-ref refs/remotes/origin/HEAD | sed "s@^refs/remotes/origin/@@") ]
         then
             TARGET_BRANCH=
         else
@@ -53,6 +53,7 @@ alias gbr='git branch'
 alias gco='git checkout'
 alias gcob='new_branch'
 alias gcom='git checkout master'
+alias gcod='git checkout develop'
 alias gcot='git checkout `target_branch`'
 alias gam='git commit --all --amend --no-edit --allow-empty-message --allow-empty'
 alias gpr='git push --set-upstream origin `git rev-parse --abbrev-ref HEAD`'

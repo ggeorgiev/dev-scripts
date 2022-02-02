@@ -4,17 +4,17 @@
 # merges again, changes again.
 #
 # squish.sh is a script that can help. It squishes all the 
-# differences in the current branch from master in a single
+# differences in the current branch from the default branch in a single
 # change.
 
 # TODO: restore the state if something goes wrong
 
+DEFAULT_BRANCH=`git symbolic-ref refs/remotes/origin/HEAD | sed "s@^refs/remotes/origin/@@"`
 CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
-
 
 if [ -z "$SQUISH_PULL_BRANCHES_PATTERN" ]
 then
-  SQUISH_PULL_BRANCHES_PATTERN="^master$|^feature/|^release/"
+  SQUISH_PULL_BRANCHES_PATTERN="^${DEFAULT_BRANCH}|^feature/|^release/"
 fi
 
 # If there is no pull branch explicitly specified, try to obtain it from the branch name
@@ -37,8 +37,8 @@ then
   then
     PULL_BRANCH=${PULL_BRANCHS[0]}
   else
-    echo '*** There are multiple branches that match the pattern. Defaulting to master.'
-    PULL_BRANCH=master
+    echo '*** There are multiple branches that match the pattern. Defaulting to ${DEFAULT_BRANCH}.'
+    PULL_BRANCH=${DEFAULT_BRANCH}
   fi
 fi 
 
@@ -80,7 +80,7 @@ echo Creating temporary branch ...
 execute "git checkout -b ${TEMP_BRANCH}" || exit 1
 
 echo Merging the changes from ${CURRENT_BRANCH} ...
-execute "git merge --no-edit ${CURRENT_BRANCH}" || exit 1
+execute "git merge --no-verify --no-edit ${CURRENT_BRANCH}" || exit 1
 
 echo Reset back to the ${PULL_BRANCH} head ...
 execute "git reset ${PULL_BRANCH}" || exit 1
