@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-pushd `dirname ${BASH_ARGV[0]}`/../.. > /dev/null && BASEDIR=$(pwd -L) && popd > /dev/null
+BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 target_branch()
 {
@@ -65,4 +65,3 @@ alias gam='git commit --all --amend --no-edit --allow-empty-message --allow-empt
 alias gpr='git push --set-upstream origin `git rev-parse --abbrev-ref HEAD`'
 alias gsq="$BASEDIR/dev-scripts/git/squish.sh"
 alias grr='git reset --hard HEAD~10 && git pull'
-
